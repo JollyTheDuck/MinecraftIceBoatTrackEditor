@@ -23,7 +23,7 @@ press G it will generate the track and give you a big list of commands to copy (
 You can store this data in a .mcfuntions file, read more about this in the next header
 
 #Importing
-Importing your track is the most complex part of making the track.
+ your track is the most complex part of making the track.
 
 You have to create a datapack, you can eather follow a youtube tutorial by OMGCraft(https://www.youtube.com/watch?v=Af920SeuVSk). 
 Or read more about it here:
