@@ -66,4 +66,4 @@ Make sure you have operator permissions and type the command /function (your nam
 This will put the track next to you, now you can make with world edit a schematic, or just drive it!
 If this doesn't work try doing /reload and then your function command. WATCH OUT!!!! if your on a server, ask the administrator for permission to do this! this could crash a server!
 
-#Enjoy!
+#Enjoy! 69 lines Nice!
