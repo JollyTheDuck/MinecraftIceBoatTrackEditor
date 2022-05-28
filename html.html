@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var createScene = function () {
+    // This creates a basic Babylon Scene object (non-mesh)
+    var scene = new BABYLON.Scene(engine);
+        // This creates a basic Babylon Scene object (non-mesh)
+        var scene = new BABYLON.Scene(engine);
+    
+        // This creates and positions a free camera (non-mesh)
+        // var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(25, 15, -15), scene);
+        var camera = new BABYLON.ArcRotateCamera("camera1", 0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
+        // camera.panningSensibility = 0;
+        // camera.panningSensibility = 0;
+        camera.lowerBetaLimit = 0;
+        camera.upperBetaLimit = 0;
+        camera.setPosition(new BABYLON.Vector3(0, 0, -50));
+        // This targets the camera to scene origin
+        camera.setTarget(BABYLON.Vector3.Zero());
+        camera.alpha = 0;
+    
+        // This attaches the camera to the canvas
+        camera.attachControl(canvas, true);
+    
+        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    
+        // Default intensity is 1. Let's dim the light a small amount
+        light.intensity = 0.7;
+        var previewBlock = createBalk(scene);
+        //make the preview block rgb red
+        // previewBlock.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        //set track array
+        var trackArray = [];
+        var trackArrayPos = [];
+        var trackArrayPosFinal = [];
+        var finalTrackArray = [];
+        var toggleChain = false;
+        var toggleChains = false;
+        var blockArray = [];
+        var MCBlockArray = [];
+        var fillArray = [];
+
+        //when the user presses wasd, move the preview block
+        document.addEventListener("keydown", function(event) {
+            (event.keyCode);
+            if (event.keyCode == 87) {
+                previewBlock.position.x -= 2;
+            }
+            if (event.keyCode == 83) {
+                previewBlock.position.x += 2;
+            }
+            if (event.keyCode == 65) {
+                previewBlock.position.z -= 2;
+            }
+            if (event.keyCode == 68) {
+                previewBlock.position.z += 2;
+            }
+            //spacebar
+            if (event.keyCode == 32) {
+                previewBlock.position.y += 2;
+            }
+            //shift
+            if (event.keyCode == 16) {
+                previewBlock.position.y -= 2;
+            }
+            if (event.keyCode == 13) {
+                //clone the preview block and add it to the scene and the xyz position to the track array
+                var clone = previewBlock.clone("clone", null);
+                //set the name of the clone
+                clone.name = "clone" + trackArray.length;
+                (clone)
+                scene.addMesh(clone);
+                trackArray.push(clone);
+                //add ischain to the track array
+                trackArrayPos.push(clone.position);
+                var finalCloneData = {
+                    isChain: toggleChain,
+                    position: clone.position
+                }
+                if(toggleChain == true){
+                    toggleChain = false;
+                }
+                //push 
+                trackArrayPosFinal.push(finalCloneData);
+                (trackArrayPos)
+                if(trackArray.length > 1) {
+                    //clone the preview line and change the name
+                    var cloneLine = scene.getMeshByName("previewLine").clone("previewLine", null);
+                    //change the name of the clone line
+                    cloneLine.name = "line" + trackArray.length;
+                    //if toggle chain is true, change the color of the line to green
+                    if(toggleChain) {
+                        cloneLine.color = new BABYLON.Color3(0, 1, 0);
+                    }
+                    //add the clone line to the scene
+                    scene.addMesh(cloneLine);
+                }
+            }
+            //if the user presses g, smooth the track
+            if(event.keyCode == 71) {
+                // if line exists remove it
+                if(scene.getMeshByName("sline")) {
+                    scene.getMeshByName("sline").dispose();
+                }
+                //remove the smoothed array
+                finalTrackArray = [];
+                //make curve from trackpos array and smooth it
+                
+                var curve = BABYLON.Curve3.CreateCatmullRomSpline(trackArrayPos, 15);
+                ("curve", curve);
+                //push the positions of the curve to the final track array
+                for(var i = 0; i < curve.getPoints().length; i++) {
+                    //for each trackarraypos, search the closest curve point and push it to the final track array
+                    for(var j = 0; j < trackArrayPos.length; j++) {
+                        var tempbool = false;
+                        if(curve.getPoints()[i].x == trackArrayPos[j].x && curve.getPoints()[i].y == trackArrayPos[j].y && curve.getPoints()[i].z == trackArrayPos[j].z && trackArrayPosFinal[j].isChain == true) {
+                            var data = {
+                                isChain: true,
+                                _x: curve.getPoints()[i].x,
+                                _y: curve.getPoints()[i].y,
+                                _z: curve.getPoints()[i].z
+                            }
+                            finalTrackArray.push(data);
+                            //log the position of the chain
+                            (trackArrayPos[j])
+                            tempbool = true;
+                            break;
+                            }
+                        }
+                        if(tempbool == false){
+                            var data = {
+                                isChain: false,
+                                _x: curve.getPoints()[i].x,
+                                _y: curve.getPoints()[i].y,
+                                _z: curve.getPoints()[i].z
+                            }
+                            finalTrackArray.push(data);
+                        }
+                }
+                ("finalTrackArray", finalTrackArray);
+                //create a line from the curve
+                var line = BABYLON.MeshBuilder.CreateLines("sline"+trackArray.length, {points: curve.getPoints()}, scene);
+                //add the line to the scene
+                scene.addMesh(line);
+                generatePath();
+            }
+
+            //generate path 3 wide with blocks in a grid and angle of curve
+            function generatePath(){
+                //get rid off all blocks starting with trackblock
+                while(scene.getMeshByName("trackblock")){
+                    scene.getMeshByName("trackblock").dispose();
+                }
+                //make a vector3 array from the final track array
+                var finalTrackArrayVector3 = [];
+                for(var i = 0; i < finalTrackArray.length; i++) {
+                    var vector3 = new BABYLON.Vector3(finalTrackArray[i]._x, finalTrackArray[i]._y, finalTrackArray[i]._z);
+                    finalTrackArrayVector3.push(vector3);
+                }
+                //make a tube from the vector3 array
+                var tube = BABYLON.MeshBuilder.CreateTube("tube", {path: finalTrackArrayVector3, radius: 8, sideOrientation: BABYLON.Mesh.DOUBLESIDE, updatable: true}, scene);
+                // tube.simplify([{quality: 0.01, distance: 0}],false,BABYLON.SimplificationType.QUADRATIC);
+                tube.updateFacetData();
+                (tube.getFacetLocalPositions());
+                for(var i = 0; i < tube.getFacetLocalPositions().length; i++) {
+                    tempPos = tube.getFacetLocalPositions()[i];
+                    //if the y position is greater than 0.1 or less than -0.1 continue
+                    if(tempPos.y > 0.5 || tempPos.y < -0.5) {
+                        continue;
+                    }
+                    tempPos.y = 0;
+                    //round the x and z position to the nearest 1
+                    tempPos.x = Math.round(tempPos.x);
+                    tempPos.z = Math.round(tempPos.z);
+                    //if the position is already in the final track array continue
+                    if(blockArray.indexOf(tempPos) != -1) {
+                        continue;
+                    }
+                    //add the position to the final track array
+                    blockArray.push(tempPos);
+                    var block = createBalk(scene);
+                    //set block position 
+                    block.position = tempPos;
+                    //name the block trackblock
+                    block.name = "trackblock";
+                    //add block to the scene
+                    scene.addMesh(block);
+                }
+                //for tube.getFacetLocalPositions().length get everything with an unique rounded x and z position and push it to fillArray
+                for(var i = 0; i < tube.getFacetLocalPositions().length; i++) {
+                    tempPos = tube.getFacetLocalPositions()[i];
+                    tempPos.y = 0;
+                    //round the x and z position to the nearest 1
+                    tempPos.x = Math.round(tempPos.x);
+                    tempPos.z = Math.round(tempPos.z);
+                    //add the position to the final track array
+                    fillArray.push(tempPos);
+                }
+
+                function uniq(a) {
+                    var seen = {};
+                    return a.filter(function(item) {
+                        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+                    });
+                }
+            
+                fillArray = uniq(fillArray);
+            
+                (fillArray)
+                //remove the tube
+                tube.dispose();
+                var string = "";
+                for(var i = 0; i < blockArray.length; i++) {
+                    string += "setblock " + "~"+Math.round(blockArray[i].x) + " ~" + Math.round(blockArray[i].y) + " ~" + Math.round(blockArray[i].z) + " stone\n";
+                }
+                for(var i = 0; i < fillArray.length; i++) {
+                    string += "setblock ~"+fillArray[i].x + " ~-1" + " ~" + fillArray[i].z + " minecraft:packed_ice\n";
+                }
+                for(var i = 0; i < finalTrackArrayVector3.length; i++) {
+                    string += "setblock " + "~"+Math.round(finalTrackArrayVector3[i].x) + " ~" + Math.round(finalTrackArrayVector3[i].y-1) + " ~" + Math.round(finalTrackArrayVector3[i].z) + " blue_ice\n";
+                }
+                console.log(string);
+            }
+
+            //when the user presses c toggle the chain
+            if(event.keyCode == 67) {
+                if(toggleChain == false) {
+                    toggleChain = true;
+                    toggleChains = !toggleChains;
+                } else {
+                    toggleChain = false;
+                    toggleChains = !toggleChains;
+                }
+                console.log(toggleChain);
+            }
+
+            //if the user presses z, remove the last track
+            if(event.keyCode == 90) {
+                //remove the last track
+                scene.getMeshByName("line"+trackArray.length).dispose();
+                trackArray.pop();
+                //remove the last track position
+                trackArrayPos.pop();
+                //remove the last line
+
+                //remove the last clone
+                scene.getMeshByName("clone"+trackArray.length).dispose();
+
+            }
+
+            if(scene.getMeshByName("previewLine")) {
+                scene.getMeshByName("previewLine").dispose();
+            }
+            if(trackArray.length > 0) {
+                var line = BABYLON.MeshBuilder.CreateLines("previewLine", {points: [previewBlock.position, trackArray[trackArray.length-1].position]}, scene);
+                if(toggleChains == true){
+                    line.color = new BABYLON.Color3(0, 1, 0);
+                } else {
+                    line.color = new BABYLON.Color3(1, 0, 0);
+                }
+                line.alpha = 0.5;
+            }
+        });
+
+                            
+            //draw a line between the preview block and the previewblock
+            //remove all lines from the scene
+            //check if previewline exists
+            //if it does, remove it
+
+            //draw all the lines between the track array
+
+
+        return scene;
+};
+                window.initFunction = async function() {
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();};
+        initFunction().then(() => {sceneToRender = scene                    
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+        function createBalk(scene){
+        var balk = new BABYLON.MeshBuilder.CreateBox('box',{width: 1, height: 1, depth: 1},scene)
+    
+        return balk;
+    }
+    
+
+    </script>
+</body>
+</html>
