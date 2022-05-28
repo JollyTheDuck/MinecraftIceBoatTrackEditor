@@ -5,7 +5,7 @@ This is an Ice Boat Racing track maker for Minecraft
 #Usage
 Open html.html
 
-Controls
+    Controls
     -WASD
         -move the preview block
     -Enter
