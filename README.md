@@ -64,6 +64,6 @@ Or read more about it here:
 Once you have created a datapack, and put your mcfunction file in the functions folder, you can enter your world!
 Make sure you have operator permissions and type the command /function (your namespace):(your file name)
 This will put the track next to you, now you can make with world edit a schematic, or just drive it!
-If this doesn't work try doing /reload and then your function command. WATCH OUT!!!! if your on a server, ask the administrator for permission to do this! this could crash a server!
+If this doesn't work try doing /reload and then your function command. WATCH OUT!!!! if your on a server, ask the administrator for permission to do this! this could crash a server! Minecraft can handle in 1 .mcfunction file 65536 ammount of commands (from my testing) you can split the .mcfunction file into multiple if needed.
 
 #Enjoy! 69 lines Nice!
