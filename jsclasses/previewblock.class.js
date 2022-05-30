@@ -7,12 +7,15 @@ class PreviewBlock {
         this.height = height;
         this.depth = depth;
         this.color = color;
+        this.currentTrackWidth = 8;
+        this.createGravel = true;
         //create a box
         this.box = BABYLON.MeshBuilder.CreateBox("box", { width: width, height: height, depth: depth}, scene);
         this.box.position.x = x;
         this.box.position.y = y;
         this.box.position.z = z;
         this.box.material = new BABYLON.StandardMaterial("material", scene);
+        this.box.material.diffuseColor = new BABYLON.Color3(color);
         //add the box to the scene
         scene.addMesh(this.box);
     }
@@ -33,5 +36,15 @@ class PreviewBlock {
                 this.box.position.z -= 1;
                 break;
         }
+    }
+
+    //set current track width
+    setTrackWidth(width) {
+        this.currentTrackWidth = width;
+    }
+
+    //toggle gravel
+    toggleGravel() {
+        this.createGravel = !this.createGravel;
     }
 }

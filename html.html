@@ -20,6 +20,7 @@
         <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
         <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.js"></script>
         <script src="jsclasses/track.class.js"></script>
         <script src="jsclasses/previewblock.class.js"></script>
 
@@ -80,23 +81,97 @@
         // Default intensity is 1. Let's dim the light a small amount
         light.intensity = 0.7;
 
-        //when the user presses wasd, move the preview block
-        
+        //make the previewblock and track
+        var track = new Track(true,scene);
+        var previewblock = new PreviewBlock(0,0,0,1,1,1,"#000FFF",scene);
+
+        // USER INTERFACE
+        var gui = new dat.GUI();
+        var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI(
+        "myUI"
+        );
+        var panel = new BABYLON.GUI.StackPanel();
+        panel.width = "100%";
+        panel.height = "100%";
+        panel.isVertical = true;
+        panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        advancedTexture.addControl(panel);
+        //add label
+        var label = new BABYLON.GUI.TextBlock();
+        label.text = "Width "+previewblock.currentTrackWidth+"b";
+        label.color = "white";
+        label.width = "100%";
+        label.height = "20px";
+        label.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        label.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        panel.addControl(label);
+        //add slider
+        var slider = new BABYLON.GUI.Slider();
+        slider.minimum = 3;
+        slider.maximum = 15;
+        slider.value = 8;
+        slider.width = "20%";
+        slider.height = "20px";
+        slider.onValueChangedObservable.add(function (value) {
+            value = Math.round(value);
+            previewblock.currentTrackWidth = value;
+            label.text = "Width "+value+"b";
+        });
+        // change alignement
+        slider.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        slider.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        panel.addControl(slider);
+        //add label for the creategravel boolean
+        var label2 = new BABYLON.GUI.TextBlock();
+        label2.text = "Create gravel";
+        label2.color = "white";
+        label2.width = "100%";
+        label2.height = "20px";
+        label2.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        label2.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        panel.addControl(label2);
+        //create a button to generate gravel
+        var button = new BABYLON.GUI.Button();
+        button.width = "20%";
+        button.height = "20px";
+        button.color = "white";
+        button.background = "green";
+        //text
+        button.onPointerUpObservable.add(function() {
+            previewblock.toggleGravel();
+            //toggle the background color
+            console.log(previewblock.createGravel);
+            if(previewblock.createGravel == true)
+            {
+                button.background = "green";
+            }
+            else
+            {
+                button.background = "red";
+            }
+        });
+        button.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        button.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        panel.addControl(button);
+
         // END OF SCENE CREATION
         // END OF SCENE CREATION
         // END OF SCENE CREATION
         // END OF SCENE CREATION
 
-        //make the previewblock
-        var track = new Track(true,scene);
-        var previewblock = new PreviewBlock(0,0,0,1,1,1,"#ff0000",scene);
         //on keypress, move the preview block
         document.onkeydown = function(e) {
             previewblock.move(e);
             //if the user preses enter, make the block
             if(e.keyCode == 13)
             {
-                track.addTrack(previewblock.box);
+                track.addTrack(previewblock);
+            }
+            //if the user presses z, undo the last block
+            if(e.keyCode == 90)
+            {
+                track.removeTrack();
             }
         }
 
