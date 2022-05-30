@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Babylon.js sample code</title>
+        <title>MCTrackGenerator</title>
 
         <!-- Babylon.js -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
@@ -67,7 +67,7 @@
         // This creates and positions a free camera (non-mesh)
         // var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(25, 15, -15), scene);
         //make an orbit camera
-        var camera = new BABYLON.ArcRotateCamera("camera1", 0, 0, 0, new BABYLON.Vector3(0, 10, 0), scene);
+        var camera = new BABYLON.ArcRotateCamera("camera1", 0, 0, 0, new BABYLON.Vector3(0, 50, 0), scene);
     
         // This targets the camera to scene origin
         camera.setTarget(BABYLON.Vector3.Zero());
@@ -99,7 +99,7 @@
         advancedTexture.addControl(panel);
         //add label
         var label = new BABYLON.GUI.TextBlock();
-        label.text = "Width "+previewblock.currentTrackWidth+"b";
+        label.text = "Width "+previewblock.currentTrackWidth*2+"b";
         label.color = "white";
         label.width = "100%";
         label.height = "20px";
@@ -110,7 +110,7 @@
         var slider = new BABYLON.GUI.Slider();
         slider.minimum = 3;
         slider.maximum = 15;
-        slider.value = 8;
+        slider.value = 4;
         slider.width = "20%";
         slider.height = "20px";
         slider.onValueChangedObservable.add(function (value) {
@@ -160,8 +160,9 @@
         // END OF SCENE CREATION
         // END OF SCENE CREATION
 
-        //on keypress, move the preview block
+        //EVENT HADNLER
         document.onkeydown = function(e) {
+            //send move event to previewblock
             previewblock.move(e);
             //if the user preses enter, make the block
             if(e.keyCode == 13)
@@ -172,6 +173,11 @@
             if(e.keyCode == 90)
             {
                 track.removeTrack();
+            }
+            //if the user presses g, generate the tube
+            if(e.keyCode == 71)
+            {
+                track.makeTube();
             }
         }
 

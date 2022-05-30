@@ -7,7 +7,7 @@ class PreviewBlock {
         this.height = height;
         this.depth = depth;
         this.color = color;
-        this.currentTrackWidth = 8;
+        this.currentTrackWidth = 4;
         this.createGravel = true;
         //create a box
         this.box = BABYLON.MeshBuilder.CreateBox("box", { width: width, height: height, depth: depth}, scene);
@@ -40,11 +40,12 @@ class PreviewBlock {
 
     //set current track width
     setTrackWidth(width) {
-        this.currentTrackWidth = width;
+        this.currentTrackWidth = width/2;
     }
 
     //toggle gravel
     toggleGravel() {
         this.createGravel = !this.createGravel;
     }
+    
 }
