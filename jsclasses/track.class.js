@@ -8,6 +8,7 @@ class Track {
         this.line = null;
         this.meshes = [];
         this.tube = null;
+        this.tube2 = null;
         this.blockArray = [];
     }
 
@@ -78,29 +79,23 @@ class Track {
     makeTube()
     {
         this.cleanPath();
+        this.blockArray = [];
         const radiusChange = (i) => {
             return this.track[Math.round(i/10)].width;
         }
         const radiusChange2 = (i) => {
             return this.track[Math.round(i/10)].width-1;
         }
+        //create the tubes
         this.tube = BABYLON.MeshBuilder.CreateTube("tube", {path: this.path, radius: 1, radiusFunction: radiusChange, tessellation: 100}, this.scene);
         this.tube.material = new BABYLON.StandardMaterial("material", this.scene);
         this.tube.material.diffuseColor = new BABYLON.Color3(0,0,1);
-        //update facet data
-        this.tube.updateFacetData();
-        this.scene.addMesh(this.tube);
-        //get all the positions of the tube
         var positions = this.tube.getVerticesData(BABYLON.VertexBuffer.PositionKind);
-        //create another tube with -1 radius for the gravel
-        var tube2 = BABYLON.MeshBuilder.CreateTube("tube", {path: this.path, radius: 1, radiusFunction: radiusChange2, tessellation: 100}, this.scene);
-        this.tube2.material = new BABYLON.StandardMaterial("material", this.scene);
-        this.tube2.material.diffuseColor = new BABYLON.Color3(0,0,1);
-        //update facet data
-        this.tube2.updateFacetData();
-        this.scene.addMesh(tube2);
-        //get all the positions of the tube
-        var positions2 = tube2.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+        this.tube2 = BABYLON.MeshBuilder.CreateTube("tube", {path: this.path, radius: 1, radiusFunction: radiusChange2, tessellation: 100}, this.scene);
+        var positions2 = this.tube2.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+        //add the tubes to the scene
+        this.scene.addMesh(this.tube);
+        this.scene.addMesh(this.tube2);
         //create an array of the positions
         var positionsArrayLeft = [];
         var positionsArrayRight = [];
@@ -115,11 +110,16 @@ class Track {
                     //push rounded vector3 to the array
                     positionsArrayLeft.push(new BABYLON.Vector3(Math.round(positions[i]),Math.round(positions[i+1]),Math.round(positions[i+2])));
                     //push the position to the gravel array -1 distance from the center
-                    positionsArrayGravelLeft.push(new BABYLON.Vector3(Math.round(positions2[i]),Math.round(positions2[i+1]),Math.round(positions2[i+2])));
+                    //if create gravel is true
+                    if(this.track.gravel == true){
+                        positionsArrayGravelLeft.push(new BABYLON.Vector3(Math.round(positions2[i]),Math.round(positions2[i+1]),Math.round(positions2[i+2])));
+                    }
                 }else{
                     positionsArrayRight.push(new BABYLON.Vector3(Math.round(positions[i]),Math.round(positions[i+1]),Math.round(positions[i+2])));
-                    positionsArrayGravelRight.push(new BABYLON.Vector3(Math.round(positions2[i]),Math.round(positions2[i+1]),Math.round(positions2[i+2])));
-                }
+                    if(this.track.gravel == true){
+                        positionsArrayGravelRight.push(new BABYLON.Vector3(Math.round(positions2[i]),Math.round(positions2[i+1]),Math.round(positions2[i+2])));
+                    }
+                    }
                 //filter
                 positionsArrayLeft = this.uniq(positionsArrayLeft);
                 positionsArrayRight = this.uniq(positionsArrayRight);        
@@ -137,8 +137,16 @@ class Track {
         createLines(positionsArrayGravelLeft, new BABYLON.Color3(0,1,0), this.scene);
         createLines(positionsArrayGravelRight, new BABYLON.Color3(0,1,0), this.scene);
 
-        //remove the tube
+        //dispose the tubes
         this.tube.dispose();
+        this.tube2.dispose();
+
+        this.addToBlockArray(positionsArrayLeft);
+        this.addToBlockArray(positionsArrayRight);
+        this.addToBlockArray(positionsArrayGravelLeft);
+        this.addToBlockArray(positionsArrayGravelRight);
+
+        this.exportTrack();
     }
         
     uniq (a) {
@@ -146,6 +154,20 @@ class Track {
         return a.filter(function(item) {
             return seen.hasOwnProperty(item) ? false : (seen[item] = true);
         });
+    }
+
+    addToBlockArray(array) {
+        for(var i = 0; i < array.length; i++){
+            this.blockArray.push(array[i]);
+        }
+    }
+
+    exportTrack(){
+        var string = "";
+        for(var i = 0; i < this.blockArray.length; i++){
+            string += "setblock ~" + this.blockArray[i].x + " ~" + this.blockArray[i].y + " ~" + this.blockArray[i].z + " stone\n";
+        }
+        console.log(string);
     }
         //create a path from the outsides of the boxes
     
