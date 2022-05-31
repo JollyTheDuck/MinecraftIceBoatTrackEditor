@@ -81,38 +81,74 @@ class Track {
         const radiusChange = (i) => {
             return this.track[Math.round(i/10)].width;
         }
-        this.tube = BABYLON.MeshBuilder.CreateTube("tube", {path: this.path, radius: 0.5, radiusFunction: radiusChange, tessellation: 100}, this.scene);
+        const radiusChange2 = (i) => {
+            return this.track[Math.round(i/10)].width-1;
+        }
+        this.tube = BABYLON.MeshBuilder.CreateTube("tube", {path: this.path, radius: 1, radiusFunction: radiusChange, tessellation: 100}, this.scene);
         this.tube.material = new BABYLON.StandardMaterial("material", this.scene);
         this.tube.material.diffuseColor = new BABYLON.Color3(0,0,1);
+        //update facet data
+        this.tube.updateFacetData();
         this.scene.addMesh(this.tube);
-        //create boxes in the tube that fit the tube
-        for(var i = 0; i < this.path.length; i++){
-            //make boxes in the path and add them to the block array, if a position is already taken, don't create a box
-            // if(this.blockArray.length > 0){
-                var pos = this.path[i];
-                pos.x = Math.round(pos.x);
-                pos.y = Math.round(pos.y);
-                pos.z = Math.round(pos.z);
-                var found = false;
-                for(var j = 0; j < this.blockArray.length; j++){
-                    if(this.blockArray[j].x == pos.x && this.blockArray[j].y == pos.y && this.blockArray[j].z == pos.z){
-                        found = true;
-                    }
+        //get all the positions of the tube
+        var positions = this.tube.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+        //create another tube with -1 radius for the gravel
+        var tube2 = BABYLON.MeshBuilder.CreateTube("tube", {path: this.path, radius: 1, radiusFunction: radiusChange2, tessellation: 100}, this.scene);
+        this.tube2.material = new BABYLON.StandardMaterial("material", this.scene);
+        this.tube2.material.diffuseColor = new BABYLON.Color3(0,0,1);
+        //update facet data
+        this.tube2.updateFacetData();
+        this.scene.addMesh(tube2);
+        //get all the positions of the tube
+        var positions2 = tube2.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+        //create an array of the positions
+        var positionsArrayLeft = [];
+        var positionsArrayRight = [];
+        var positionsArrayGravelLeft = [];
+        var positionsArrayGravelRight = [];
+        for(var i = 0; i < positions.length; i+=3){
+            //if i+1 is between 0.16 and -0.16, add the position to the array
+            if(positions[i+1] > -0.16 && positions[i+1] < 0.16){
+                //get the center of the tube and look if the value is to the left or right
+                var center = this.tube.getBoundingInfo().boundingBox.center;
+                if(positions[i+1] < center.y){
+                    //push rounded vector3 to the array
+                    positionsArrayLeft.push(new BABYLON.Vector3(Math.round(positions[i]),Math.round(positions[i+1]),Math.round(positions[i+2])));
+                    //push the position to the gravel array -1 distance from the center
+                    positionsArrayGravelLeft.push(new BABYLON.Vector3(Math.round(positions2[i]),Math.round(positions2[i+1]),Math.round(positions2[i+2])));
+                }else{
+                    positionsArrayRight.push(new BABYLON.Vector3(Math.round(positions[i]),Math.round(positions[i+1]),Math.round(positions[i+2])));
+                    positionsArrayGravelRight.push(new BABYLON.Vector3(Math.round(positions2[i]),Math.round(positions2[i+1]),Math.round(positions2[i+2])));
                 }
-                if(found == false){
-                    var box = BABYLON.MeshBuilder.CreateBox("box", { width: this.track[Math.round(i/10)].width, height: this.track[Math.round(i/10)].height, depth: this.track[Math.round(i/10)].depth}, this.scene);
-                    box.position = this.path[i];
-                    box.material = new BABYLON.StandardMaterial("material", this.scene);
-                    box.material.diffuseColor = new BABYLON.Color3(0,0,1);
-                    this.scene.addMesh(box);
-                    this.blockArray.push(box.position);
-                }
-            // }
+                //filter
+                positionsArrayLeft = this.uniq(positionsArrayLeft);
+                positionsArrayRight = this.uniq(positionsArrayRight);        
+            }
         }
-
         
-        //create a path from the outsides of the boxes
+        function createLines(array, color, scene){
+            var path = new BABYLON.Path3D(array);
+            var lines = BABYLON.MeshBuilder.CreateLines("line", {points: path.getPoints()}, scene);
+            lines.color = color;
+            scene.addMesh(lines);
+        }
+        createLines(positionsArrayLeft, new BABYLON.Color3(1,0,0), this.scene);
+        createLines(positionsArrayRight, new BABYLON.Color3(1,0,0), this.scene);
+        createLines(positionsArrayGravelLeft, new BABYLON.Color3(0,1,0), this.scene);
+        createLines(positionsArrayGravelRight, new BABYLON.Color3(0,1,0), this.scene);
+
+        //remove the tube
+        this.tube.dispose();
     }
+        
+    uniq (a) {
+        var seen = {};
+        return a.filter(function(item) {
+            return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+        });
+    }
+        //create a path from the outsides of the boxes
+    
 
 
 }
