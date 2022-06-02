@@ -1,8 +1,22 @@
+# UPDATE IN PROGRESS
+
+Many of you have given back criticism(thank you), there for I've been working on a version 2 of this track creator.
+
+I'm working on these features: -Adding the option to individually change the size of each track piece. -option to generate gravel on the side of the track
+
+What I've already done: -Optimising the generation/previewing of the track -Being more structured in the code. -Making an G.U.I.
+
+IF YOU HAVE ANY SUGGESTIONS, PLEASE DM ME ON DISCORD Luckyw0lf#9977
+
+you can follow the updates in the Reworking branch,
+
+please be patient as I'm the only developer working on this. And I'm doing this for fun and for the community.
+
 # MinecraftIceBoatTrackEditor
 
 This is an Ice Boat Racing track maker for Minecraft
 
-#Usage
+# Usage
 Open html.html
 
     Controls
@@ -17,12 +31,12 @@ Open html.html
     -G
         -generate the track
 
-#Exporting
+# Exporting
 Once you have finished creating your track, You should open the developer tools (f12)
 press G it will generate the track and give you a big list of commands to copy (in most browsers there will be a copy button)
 You can store this data in a .mcfuntions file, read more about this in the next header
 
-#Importing
+# Importing
  your track is the most complex part of making the track.
 
 You have to create a datapack, you can eather follow a youtube tutorial by OMGCraft(https://www.youtube.com/watch?v=Af920SeuVSk). 
@@ -66,4 +80,4 @@ Make sure you have operator permissions and type the command /function (your nam
 This will put the track next to you, now you can make with world edit a schematic, or just drive it!
 If this doesn't work try doing /reload and then your function command. WATCH OUT!!!! if your on a server, ask the administrator for permission to do this! this could crash a server! Minecraft can handle in 1 .mcfunction file 65536 ammount of commands (from my testing) you can split the .mcfunction file into multiple if needed.
 
-#Enjoy! 69 lines Nice!
+# Enjoy!
