@@ -1,4 +1,4 @@
-# UPDATE IN PROGRESS(canceled, too little amount of people are supporting this.)
+# UPDATE IN PROGRESS(For now canceled, might pick up in the future if used enough)
 
 Some of you have given back criticism(thank you), there for I've been working on a version 2 of this track creator.
 
