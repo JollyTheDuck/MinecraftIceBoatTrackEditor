@@ -160,7 +160,7 @@
                 finalTrackArray = [];
                 //make curve from trackpos array and smooth it
                 
-                var curve = BABYLON.Curve3.CreateCatmullRomSpline(trackArrayPos, 15);
+                var curve = BABYLON.Curve3.CreateCatmullRomSpline(trackArrayPos, 75);
                 ("curve", curve);
                 //push the positions of the curve to the final track array
                 for(var i = 0; i < curve.getPoints().length; i++) {
@@ -212,6 +212,10 @@
                     finalTrackArrayVector3.push(vector3);
                 }
                 //make a tube from the vector3 array
+                //remove the tube
+                if(tube != undefined)
+                    tube.dispose();
+
                 var tube = BABYLON.MeshBuilder.CreateTube("tube", {path: finalTrackArrayVector3, radius: 8, sideOrientation: BABYLON.Mesh.DOUBLESIDE, updatable: true}, scene);
                 // tube.simplify([{quality: 0.01, distance: 0}],false,BABYLON.SimplificationType.QUADRATIC);
                 tube.updateFacetData();
@@ -230,7 +234,7 @@
                     if(blockArray.indexOf(tempPos) != -1) {
                         continue;
                     }
-                    //add the position to the final track array
+                    // add the position to the final track array
                     blockArray.push(tempPos);
                     var block = createBalk(scene);
                     //set block position 
@@ -238,7 +242,7 @@
                     //name the block trackblock
                     block.name = "trackblock";
                     //add block to the scene
-                    scene.addMesh(block);
+                    block.dispose();
                 }
                 //for tube.getFacetLocalPositions().length get everything with an unique rounded x and z position and push it to fillArray
                 for(var i = 0; i < tube.getFacetLocalPositions().length; i++) {
@@ -250,42 +254,34 @@
                     //add the position to the final track array
                     fillArray.push(tempPos);
                 }
+                
+                // (fillArray)
 
-                function uniq(a) {
-                    var seen = {};
-                    return a.filter(function(item) {
-                        return seen.hasOwnProperty(item) ? false : (seen[item] = true);
-                    });
-                }
-            
-                fillArray = uniq(fillArray);
-            
-                (fillArray)
-                //remove the tube
-                tube.dispose();
-                var string = "";
+                console.log("Generating, this might take a while cuz code unoptimised jasdklfjaldjl");
+                var stringArr = [];
                 for(var i = 0; i < blockArray.length; i++) {
-                    string += "setblock " + "~"+Math.round(blockArray[i].x) + " ~" + Math.round(blockArray[i].y) + " ~" + Math.round(blockArray[i].z) + " stone\n";
+                    stringArr.push("setblock " + "~"+Math.round(blockArray[i].x) + " ~" + Math.round(blockArray[i].y) + " ~" + Math.round(blockArray[i].z) + " stone");
                 }
                 for(var i = 0; i < fillArray.length; i++) {
-                    string += "setblock ~"+fillArray[i].x + " ~-1" + " ~" + fillArray[i].z + " minecraft:packed_ice\n";
+                    stringArr.push("setblock ~"+fillArray[i].x + " ~-1" + " ~" + fillArray[i].z + " minecraft:packed_ice");
                 }
                 for(var i = 0; i < finalTrackArrayVector3.length; i++) {
-                    string += "setblock " + "~"+Math.round(finalTrackArrayVector3[i].x) + " ~" + Math.round(finalTrackArrayVector3[i].y-1) + " ~" + Math.round(finalTrackArrayVector3[i].z) + " blue_ice\n";
+                    stringArr.push("setblock " + "~"+Math.round(finalTrackArrayVector3[i].x) + " ~" + Math.round(finalTrackArrayVector3[i].y-1) + " ~" + Math.round(finalTrackArrayVector3[i].z) + " blue_ice");
+                }
+                var a = stringArr;
+                var b = a.reduce(function(p,c,i,a){
+                    if (p.indexOf(c) == -1) p.push(c);
+                    else p.push('')
+                    return p;
+                }, [])
+
+                var string = "";
+                for(str in b){
+                    if(b[str]==="")
+                        continue;
+                    string+=b[str]+"\n";
                 }
                 console.log(string);
-            }
-
-            //when the user presses c toggle the chain
-            if(event.keyCode == 67) {
-                if(toggleChain == false) {
-                    toggleChain = true;
-                    toggleChains = !toggleChains;
-                } else {
-                    toggleChain = false;
-                    toggleChains = !toggleChains;
-                }
-                console.log(toggleChain);
             }
 
             //if the user presses z, remove the last track
